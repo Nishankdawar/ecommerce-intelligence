@@ -76,7 +76,7 @@ export default function DashboardPage() {
       {/* Row 1: Business Overview */}
       <PageSection title="Business Overview">
         <div className="rg-6" style={{ marginBottom: 0 }}>
-          <MetricCard label="Monthly Revenue" value={formatCurrency(overview.total_monthly_revenue)} icon={TrendingUp} />
+          <MetricCard label="Monthly Revenue (Business Report)" value={formatCurrency(overview.total_monthly_revenue)} icon={TrendingUp} sub="FBA + MFN · full April 2026" />
           <MetricCard label="B2C Revenue" value={formatCurrency(overview.total_b2c_revenue)} />
           <MetricCard label="B2B Revenue" value={formatCurrency(overview.total_b2b_revenue)} />
           <MetricCard label="MFN Orders (Mar31–Apr24)" value={formatNumber(overview.total_orders)} icon={ShoppingCart} sub="MFN only · FBA orders via SP-API" />

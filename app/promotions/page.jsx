@@ -6,6 +6,7 @@ import DonutChart from '@/components/charts/DonutChart'
 import BarChart from '@/components/charts/BarChart'
 import { formatCurrency, formatNumber, formatPct } from '@/lib/formatters'
 import { AlertTriangle } from 'lucide-react'
+import { useIsMobile } from '@/lib/hooks'
 
 export default function PromotionsPage() {
   const [data, setData] = useState(null)
@@ -15,9 +16,16 @@ export default function PromotionsPage() {
     fetch('/api/engines/promotions').then(r => r.json()).then(d => { setData(d); setLoading(false) })
   }, [])
 
+  const isMobile = useIsMobile()
+
   if (loading || !data) return <div style={{ padding: 40, color: '#737373' }}>Loading...</div>
 
   const { summary, promotions, daily_trend, by_sku } = data
+
+  // On mobile show every 4th date label to avoid overlap
+  const trendData = isMobile
+    ? daily_trend.map((d, i) => ({ ...d, date: i % 4 === 0 ? d.date.replace('-2026','').replace('-Apr','') : '' }))
+    : daily_trend
 
   const promoColumns = [
     { key: 'promo_id', label: 'Promo ID', sortable: false, render: v => <span title={v} style={{ maxWidth: 300, display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 12 }}>{v}</span> },
@@ -38,7 +46,13 @@ export default function PromotionsPage() {
 
   return (
     <div>
-      <h1 style={{ fontSize: 24, fontWeight: 700, margin: '0 0 24px' }}>Promotion Attribution</h1>
+      <h1 style={{ fontSize: 24, fontWeight: 700, margin: '0 0 12px' }}>Promotion Attribution</h1>
+
+      {/* Data coverage disclaimer */}
+      <div style={{ background: '#F5F5F5', border: '1px solid #E5E5E5', borderRadius: 8, padding: '10px 14px', marginBottom: 20, fontSize: 12, color: '#737373', lineHeight: 1.6 }}>
+        <strong style={{ color: '#000' }}>Coverage: MFN orders only · Mar 31–Apr 24, 2026.</strong>
+        {' '}FBA orders are not included (requires SP-API). This is why revenue here (₹{(summary.total_revenue / 100000).toFixed(2)}L) is lower than the Dashboard figure (₹33.74L) — the gap of ~₹8.5L represents FBA revenue and Apr 25–30 MFN orders not captured in this file.
+      </div>
 
       {summary.promo_revenue_pct > 50 && (
         <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 10, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
@@ -73,14 +87,14 @@ export default function PromotionsPage() {
         <div style={{ background: '#FFF', border: '1px solid #E5E5E5', borderRadius: 12, padding: 20 }}>
           <h2 style={{ fontSize: 15, fontWeight: 600, marginTop: 0, marginBottom: 12 }}>Daily Orders — Promo vs Organic</h2>
           <BarChart
-            data={daily_trend}
+            data={trendData}
             xKey="date"
             bars={[
               { key: 'promo_orders', label: 'Promo', color: '#D97706', stack: 'a' },
               { key: 'organic_orders', label: 'Organic', color: '#000', stack: 'a' },
             ]}
             layout="horizontal"
-            height={240}
+            height={isMobile ? 200 : 240}
           />
         </div>
       </div>
