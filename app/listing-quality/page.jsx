@@ -54,7 +54,7 @@ export default function ListingQualityPage() {
     <div>
       <h1 style={{ fontSize: 24, fontWeight: 700, margin: '0 0 24px' }}>Listing Quality</h1>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12, marginBottom: 20 }}>
+      <div className="rg-5">
         <MetricCard label="Avg Quality Score" value={summary.avg_quality_score} sub="out of 100" />
         <MetricCard label="Missing MRP" value={summary.missing_mrp} color="#DC2626" />
         <MetricCard label="Duplicate Descriptions" value={summary.duplicate_descriptions} color="#D97706" />
@@ -77,7 +77,7 @@ export default function ListingQualityPage() {
         )}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16, marginBottom: 24 }}>
+      <div className="rg-21">
         <div style={{ background: '#FFF', border: '1px solid #E5E5E5', borderRadius: 12, padding: 20 }}>
           <h2 style={{ fontSize: 15, fontWeight: 600, marginTop: 0, marginBottom: 12 }}>Top 20 SKUs by Revenue Impact</h2>
           <BarChart

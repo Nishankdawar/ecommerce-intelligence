@@ -75,7 +75,7 @@ export default function DashboardPage() {
 
       {/* Row 1: Business Overview */}
       <PageSection title="Business Overview">
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12 }}>
+        <div className="rg-6" style={{ marginBottom: 0 }}>
           <MetricCard label="Monthly Revenue" value={formatCurrency(overview.total_monthly_revenue)} icon={TrendingUp} />
           <MetricCard label="B2C Revenue" value={formatCurrency(overview.total_b2c_revenue)} />
           <MetricCard label="B2B Revenue" value={formatCurrency(overview.total_b2b_revenue)} />
@@ -86,7 +86,7 @@ export default function DashboardPage() {
       </PageSection>
 
       {/* Row 2: Revenue Trend + B2C/B2B Split */}
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16, marginBottom: 24 }}>
+      <div className="rg-21">
         <Card>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
             <h2 style={{ fontSize: 15, fontWeight: 600, margin: 0 }}>Daily Revenue Trend</h2>
@@ -114,7 +114,7 @@ export default function DashboardPage() {
 
       {/* Row 3: Health Overview */}
       <PageSection title="SKU Health Overview">
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+        <div className="rg-3" style={{ marginBottom: 0 }}>
           <MetricCard label="INVEST" value={investCount} color="#16A34A" sub="Strong performers" />
           <MetricCard label="WATCH" value={watchCount} color="#D97706" sub="Needs attention" />
           <MetricCard label="DISCONTINUE" value={discCount} color="#DC2626" sub="Low performance" />
@@ -122,7 +122,7 @@ export default function DashboardPage() {
       </PageSection>
 
       {/* Row 4 + 5: Alerts + Top SKUs */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
+      <div className="rg-2">
         <div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
             <h2 style={{ fontSize: 15, fontWeight: 600, margin: 0 }}>Critical Alerts</h2>
@@ -173,7 +173,7 @@ export default function DashboardPage() {
           {/* Revenue mix snapshot */}
           <Card>
             <h2 style={{ fontSize: 15, fontWeight: 600, margin: '0 0 12px' }}>Revenue Mix</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <div className="rg-2" style={{ gap: 10, marginBottom: 0 }}>
               {[
                 { label: 'B2C Revenue', value: formatCurrency(overview.total_b2c_revenue), sub: formatPct((overview.total_b2c_revenue / overview.total_monthly_revenue) * 100) + ' of total', color: '#000' },
                 { label: 'B2B Revenue', value: formatCurrency(overview.total_b2b_revenue), sub: formatPct((overview.total_b2b_revenue / overview.total_monthly_revenue) * 100) + ' of total', color: '#525252' },
@@ -193,7 +193,7 @@ export default function DashboardPage() {
 
       {/* Row 6: Quick Wins */}
       <PageSection title="Quick Wins">
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+        <div className="rg-4" style={{ marginBottom: 0 }}>
           <Link href="/listing-quality" style={{ textDecoration: 'none' }}>
             <Card style={{ cursor: 'pointer', borderLeft: '3px solid #000' }}>
               <div style={{ fontSize: 22, fontWeight: 700, color: '#000' }}>{listingQuality?.summary?.missing_mrp || 0}</div>

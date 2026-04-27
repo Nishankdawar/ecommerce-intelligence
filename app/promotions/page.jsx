@@ -49,7 +49,7 @@ export default function PromotionsPage() {
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 24 }}>
+      <div className="rg-3">
         <MetricCard label="Total Orders" value={formatNumber(summary.total_orders)} />
         <MetricCard label="Promo Orders" value={`${formatNumber(summary.promo_orders)} (${formatPct(summary.promo_orders / summary.total_orders * 100)})`} color="#D97706" />
         <MetricCard label="Organic Orders" value={`${formatNumber(summary.organic_orders)} (${formatPct(summary.organic_orders / summary.total_orders * 100)})`} color="#16A34A" />
@@ -58,7 +58,7 @@ export default function PromotionsPage() {
         <MetricCard label="Organic Revenue" value={formatCurrency(summary.organic_revenue)} color="#16A34A" />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
+      <div className="rg-2">
         <div style={{ background: '#FFF', border: '1px solid #E5E5E5', borderRadius: 12, padding: 20 }}>
           <h2 style={{ fontSize: 15, fontWeight: 600, marginTop: 0, marginBottom: 12 }}>Promo vs Organic Revenue</h2>
           <DonutChart

@@ -136,7 +136,7 @@ export default function B2BPage() {
     <div>
       <h1 style={{ fontSize: 24, fontWeight: 700, margin: '0 0 24px' }}>B2B Opportunities</h1>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
+      <div className="rg-4">
         <MetricCard label="Total B2B Revenue" value={formatCurrency(summary.total_b2b_revenue)} />
         <MetricCard label="B2B % of Revenue" value={formatPct(summary.b2b_revenue_pct)} color="#737373" />
         <MetricCard label="SKUs Missing B2B Price" value={summary.skus_missing_b2b_pricing} color="#DC2626" />
@@ -205,7 +205,7 @@ export default function B2BPage() {
         )}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
+      <div className="rg-2">
         <div style={{ background: '#FFF', border: '1px solid #E5E5E5', borderRadius: 12, padding: 20 }}>
           <h2 style={{ fontSize: 15, fontWeight: 600, marginTop: 0, marginBottom: 12 }}>B2B vs B2C Revenue</h2>
           <DonutChart

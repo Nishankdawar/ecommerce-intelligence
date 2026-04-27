@@ -52,14 +52,14 @@ export default function InventoryPage() {
       <h1 style={{ fontSize: 24, fontWeight: 700, margin: '0 0 4px' }}>Inventory Intelligence</h1>
       <p style={{ fontSize: 13, color: '#A3A3A3', margin: '0 0 4px' }}>Velocity based on 2-day window. Accuracy improves with more data.</p>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
+      <div className="rg-4">
         <MetricCard label="Critical Stockout" value={summary.critical_stockout} color="#DC2626" sub="< 7 days remaining" />
         <MetricCard label="Warning Stockout" value={summary.warning_stockout} color="#D97706" sub="7–15 days remaining" />
         <MetricCard label="Dead Inventory SKUs" value={summary.dead_inventory_skus} color="#737373" />
         <MetricCard label="Dead Storage Cost" value={formatCurrency(summary.estimated_dead_storage_cost_monthly)} color="#D97706" sub="est. ₹20/unit/month · not from FBA fee report" />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
+      <div className="rg-2">
         <div style={{ background: '#FFF', border: '1px solid #E5E5E5', borderRadius: 12, padding: 20 }}>
           <h2 style={{ fontSize: 15, fontWeight: 600, marginTop: 0, marginBottom: 12 }}>Top 20 SKUs by Days Remaining</h2>
           <BarChart

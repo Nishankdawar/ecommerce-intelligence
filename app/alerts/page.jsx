@@ -50,7 +50,7 @@ export default function AlertsPage() {
       {shipment_stats && (
         <div style={{ background: '#FFF', border: '1px solid #E5E5E5', borderRadius: 12, padding: 20, marginBottom: 24 }}>
           <h2 style={{ fontSize: 15, fontWeight: 600, marginTop: 0, marginBottom: 16 }}>Shipment Performance</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12 }}>
+          <div className="rg-5" style={{ marginBottom: 0 }}>
             {[
               ['Total Shipments', formatNumber(shipment_stats.total_shipments)],
               ['Delayed', formatNumber(shipment_stats.delayed_count)],

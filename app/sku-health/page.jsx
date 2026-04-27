@@ -29,26 +29,28 @@ function ScoringMethodology() {
       {open && (
         <div style={{ borderTop: '1px solid #E5E5E5', padding: '20px' }}>
           {/* Overall formula */}
-          <div style={{ background: '#000', color: '#FFF', borderRadius: 8, padding: '12px 16px', marginBottom: 20, fontSize: 12, fontFamily: 'monospace', lineHeight: 1.7 }}>
+          <div style={{ background: '#000', color: '#FFF', borderRadius: 8, padding: '12px 16px', marginBottom: 20, fontSize: 12, fontFamily: 'monospace', lineHeight: 1.7, overflowX: 'auto', wordBreak: 'break-word' }}>
             <div style={{ fontSize: 11, color: '#A3A3A3', marginBottom: 6, fontFamily: 'inherit', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Overall Score Formula</div>
             {SKU_HEALTH_OVERALL.formula}
           </div>
 
-          {/* Classification thresholds */}
-          <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
-            {SKU_HEALTH_OVERALL.classifications.map(c => (
-              <div key={c.label} style={{ flex: 1, background: '#FFF', border: '1px solid #E5E5E5', borderRadius: 8, padding: '12px 14px', borderLeft: `3px solid ${c.color}` }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                  <StatusBadge status={c.label} />
-                  <span style={{ fontSize: 12, color: '#737373' }}>{c.range}</span>
+          {/* Classification thresholds — horizontally scrollable on mobile */}
+          <div style={{ overflowX: 'auto', marginBottom: 20, paddingBottom: 4 }}>
+            <div style={{ display: 'flex', gap: 10, minWidth: 480 }}>
+              {SKU_HEALTH_OVERALL.classifications.map(c => (
+                <div key={c.label} style={{ flex: 1, minWidth: 150, background: '#FFF', border: '1px solid #E5E5E5', borderRadius: 8, padding: '12px 14px', borderLeft: `3px solid ${c.color}` }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                    <StatusBadge status={c.label} />
+                    <span style={{ fontSize: 12, color: '#737373' }}>{c.range}</span>
+                  </div>
+                  <p style={{ margin: 0, fontSize: 12, color: '#525252', lineHeight: 1.5 }}>{c.description}</p>
                 </div>
-                <p style={{ margin: 0, fontSize: 12, color: '#525252', lineHeight: 1.5 }}>{c.description}</p>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
 
           {/* Per-dimension breakdown */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div className="rg-2" style={{ marginBottom: 0 }}>
             {Object.values(SKU_HEALTH_DIMENSIONS).map(dim => (
               <div key={dim.label} style={{ background: '#FFF', border: '1px solid #E5E5E5', borderRadius: 8, padding: '14px 16px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
@@ -125,7 +127,7 @@ function Drawer({ sku, onClose }) {
         Overall = Conversion×0.25 + Traffic×0.20 + Buy Box×0.20 + Return Rate×0.15 + Inventory×0.10 + B2B×0.10
       </div>
       <RadarChart data={radarData} height={260} />
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 16, marginBottom: 20 }}>
+      <div className="rg-2" style={{ marginTop: 16, marginBottom: 20, gap: 10 }}>
         {[
           ['Sessions', formatNumber(sku.metrics.sessions)],
           ['Conversion', formatPct(sku.metrics.conversion_rate)],
@@ -188,7 +190,7 @@ export default function SKUHealthPage() {
 
       <ScoringMethodology />
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
+      <div className="rg-4">
         <MetricCard label="Total SKUs" value={data.length} sub="scored this month" />
         <MetricCard
           label="INVEST"
@@ -222,7 +224,7 @@ export default function SKUHealthPage() {
         />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16, marginBottom: 24 }}>
+      <div className="rg-21">
         <div style={{ background: '#FFF', border: '1px solid #E5E5E5', borderRadius: 12, padding: 20 }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
             <div>

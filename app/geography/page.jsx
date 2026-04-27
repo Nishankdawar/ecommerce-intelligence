@@ -70,7 +70,7 @@ export default function GeographyPage() {
         )
       })()}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
+      <div className="rg-2">
         <div style={{ background: '#FFF', border: '1px solid #E5E5E5', borderRadius: 12, padding: 20 }}>
           <div style={{ marginBottom: 16 }}>
             <h2 style={{ fontSize: 15, fontWeight: 600, margin: '0 0 4px' }}>Avg Order Value by State</h2>
@@ -100,7 +100,7 @@ export default function GeographyPage() {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
+      <div className="rg-2">
         <div>
           <h2 style={{ fontSize: 15, fontWeight: 600, marginBottom: 12 }}>Top 10 States</h2>
           <DataTable columns={stateColumns} data={by_state.slice(0, 10)} pageSize={10} />
