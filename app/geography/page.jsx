@@ -3,14 +3,10 @@ import { useState, useEffect } from 'react'
 import DataTable from '@/components/DataTable'
 import BarChart from '@/components/charts/BarChart'
 import { formatCurrency, formatNumber } from '@/lib/formatters'
-import dynamic from 'next/dynamic'
-
-const IndiaMap = dynamic(() => import('@/components/charts/IndiaMap'), { ssr: false })
 
 export default function GeographyPage() {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [selectedSku, setSelectedSku] = useState('ALL')
 
   useEffect(() => {
     fetch('/api/engines/geography').then(r => r.json()).then(d => { setData(d); setLoading(false) })
@@ -20,11 +16,15 @@ export default function GeographyPage() {
 
   const { by_state, by_city, by_sku } = data
 
-  const activeSkuData = selectedSku === 'ALL' ? by_state : (() => {
-    const skuEntry = by_sku.find(s => s.sku === selectedSku || s.asin === selectedSku)
-    if (!skuEntry) return by_state
-    return skuEntry.top_states.map(s => ({ state: s.state, orders: s.orders, revenue: 0, avg_order_value: 0 }))
-  })()
+  // Top 15 states by AOV — only include states with ≥5 orders to avoid noise
+  const aovData = [...by_state]
+    .filter(s => s.orders >= 5 && s.avg_order_value > 0)
+    .sort((a, b) => b.avg_order_value - a.avg_order_value)
+    .slice(0, 15)
+
+  // Catalog avg AOV for reference line context
+  const catalogAvgAOV = by_state.reduce((s, r) => s + r.revenue, 0) /
+    Math.max(by_state.reduce((s, r) => s + r.orders, 0), 1)
 
   const totalOrders = by_state.reduce((s, r) => s + r.orders, 0)
   const top3 = by_state.slice(0, 3)
@@ -44,7 +44,6 @@ export default function GeographyPage() {
     { key: 'revenue', label: 'Revenue', sortable: true, align: 'right', render: v => formatCurrency(v) },
   ]
 
-  const skuOptions = [{ sku: 'ALL', asin: 'ALL' }, ...by_sku.slice(0, 100)]
 
   return (
     <div>
@@ -57,18 +56,37 @@ export default function GeographyPage() {
         Top 3 states ({top3.map(s => s.state).join(', ')}) drive <strong>{top3Pct}%</strong> of all orders.
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-        <label style={{ fontSize: 13, color: '#737373' }}>Filter by SKU:</label>
-        <select value={selectedSku} onChange={e => setSelectedSku(e.target.value)}
-          style={{ padding: '6px 12px', border: '1px solid #000', borderRadius: 8, fontSize: 13, background: '#FFF', maxWidth: 300 }}>
-          {skuOptions.map(s => <option key={s.asin} value={s.sku || s.asin}>{s.sku === 'ALL' ? 'All SKUs' : s.sku}</option>)}
-        </select>
-      </div>
+      {/* AOV insight callout */}
+      {aovData.length > 0 && (() => {
+        const top = aovData[0]
+        const abovePct = Math.round(((top.avg_order_value - catalogAvgAOV) / catalogAvgAOV) * 100)
+        return (
+          <div style={{ background: '#FAFAFA', border: '1px solid #E5E5E5', borderRadius: 10, padding: '10px 16px', marginBottom: 20, fontSize: 13, color: '#000' }}>
+            <strong>{top.state}</strong> has the highest avg order value at{' '}
+            <strong>{formatCurrency(top.avg_order_value)}</strong> — {' '}
+            {abovePct > 0 ? <span style={{ color: '#16A34A' }}>{abovePct}% above</span> : <span style={{ color: '#DC2626' }}>{Math.abs(abovePct)}% below</span>}
+            {' '}catalog average ({formatCurrency(catalogAvgAOV)}). Consider targeting premium SKUs here.
+          </div>
+        )
+      })()}
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
         <div style={{ background: '#FFF', border: '1px solid #E5E5E5', borderRadius: 12, padding: 20 }}>
-          <h2 style={{ fontSize: 15, fontWeight: 600, marginTop: 0, marginBottom: 12 }}>India — Orders by State</h2>
-          <IndiaMap stateData={activeSkuData} />
+          <div style={{ marginBottom: 16 }}>
+            <h2 style={{ fontSize: 15, fontWeight: 600, margin: '0 0 4px' }}>Avg Order Value by State</h2>
+            <p style={{ margin: 0, fontSize: 12, color: '#737373' }}>
+              States sorted by AOV · only states with ≥5 orders shown · catalog avg {formatCurrency(catalogAvgAOV)}
+            </p>
+          </div>
+          <BarChart
+            data={aovData.map(s => ({ name: s.state, aov: Math.round(s.avg_order_value) }))}
+            xKey="name"
+            bars={[{ key: 'aov', label: 'Avg Order Value', color: '#000' }]}
+            layout="vertical"
+            tickFormatter={v => formatCurrency(v)}
+            height={420}
+            colorFn={row => row.aov >= catalogAvgAOV ? '#000' : '#A3A3A3'}
+          />
         </div>
         <div style={{ background: '#FFF', border: '1px solid #E5E5E5', borderRadius: 12, padding: 20 }}>
           <h2 style={{ fontSize: 15, fontWeight: 600, marginTop: 0, marginBottom: 12 }}>Top States by Orders</h2>

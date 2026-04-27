@@ -6,7 +6,6 @@ import DataTable from '@/components/DataTable'
 import BarChart from '@/components/charts/BarChart'
 import { formatCurrency, formatNumber } from '@/lib/formatters'
 
-const statusColor = { CRITICAL: '#DC2626', WARNING: '#D97706', WATCH: '#D97706', OK: '#16A34A', DEAD: '#737373' }
 
 export default function InventoryPage() {
   const [data, setData] = useState(null)
@@ -43,7 +42,7 @@ export default function InventoryPage() {
     { key: 'msku', label: 'SKU', sortable: true },
     { key: 'title', label: 'Title', sortable: false, render: v => <span style={{ maxWidth: 260, display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{v}</span> },
     { key: 'units_stuck', label: 'Units Stuck', sortable: true, align: 'right' },
-    { key: 'estimated_monthly_cost', label: 'Cost/Month', sortable: true, align: 'right', render: v => formatCurrency(v) },
+    { key: 'estimated_monthly_cost', label: 'Est. Cost/Month *', sortable: true, align: 'right', render: v => <span style={{ color: '#D97706' }}>{formatCurrency(v)}</span> },
     { key: 'recommended_action', label: 'Action', sortable: true, render: v => <span style={{ fontWeight: 600 }}>{v}</span> },
     { key: 'action_reason', label: 'Reason', sortable: false, wrap: true },
   ]
@@ -57,7 +56,7 @@ export default function InventoryPage() {
         <MetricCard label="Critical Stockout" value={summary.critical_stockout} color="#DC2626" sub="< 7 days remaining" />
         <MetricCard label="Warning Stockout" value={summary.warning_stockout} color="#D97706" sub="7–15 days remaining" />
         <MetricCard label="Dead Inventory SKUs" value={summary.dead_inventory_skus} color="#737373" />
-        <MetricCard label="Dead Storage Cost" value={formatCurrency(summary.estimated_dead_storage_cost_monthly)} color="#D97706" sub="estimated / month" />
+        <MetricCard label="Dead Storage Cost" value={formatCurrency(summary.estimated_dead_storage_cost_monthly)} color="#D97706" sub="est. ₹20/unit/month · not from FBA fee report" />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
@@ -101,7 +100,18 @@ export default function InventoryPage() {
       </div>
 
       {tab === 'active' && <DataTable columns={activeColumns} data={skus} searchable searchKeys={['msku', 'title']} pageSize={25} />}
-      {tab === 'dead' && <DataTable columns={deadColumns} data={dead_inventory} searchable searchKeys={['msku', 'title']} pageSize={25} />}
+      {tab === 'dead' && (
+        <>
+          <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 8, padding: '9px 14px', marginBottom: 12, fontSize: 12, color: '#B45309', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span>⚠</span>
+            <span>
+              Storage cost is estimated at <strong>₹20/unit/month</strong> (approximate FBA standard rate).
+              Actual fees vary by size tier, category, and storage duration. For exact figures, download the <strong>FBA Fee Preview</strong> or <strong>Long-Term Storage Fee</strong> report from Seller Central.
+            </span>
+          </div>
+          <DataTable columns={deadColumns} data={dead_inventory} searchable searchKeys={['msku', 'title']} pageSize={25} />
+        </>
+      )}
       {tab === 'shrinkage' && (
         <DataTable
           columns={[

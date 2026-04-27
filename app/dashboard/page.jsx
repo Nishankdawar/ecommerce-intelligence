@@ -6,7 +6,6 @@ import MetricCard from '@/components/MetricCard'
 import AlertCard from '@/components/AlertCard'
 import AreaChart from '@/components/charts/AreaChart'
 import DonutChart from '@/components/charts/DonutChart'
-import BarChart from '@/components/charts/BarChart'
 import { formatCurrency, formatNumber, formatPct } from '@/lib/formatters'
 
 function PageSection({ title, children }) {
@@ -138,17 +137,58 @@ export default function DashboardPage() {
             }
           </div>
         </div>
-        <Card>
-          <h2 style={{ fontSize: 15, fontWeight: 600, marginBottom: 12, marginTop: 0 }}>Top 5 SKUs by Revenue</h2>
-          <BarChart
-            data={top5.map(s => ({ name: s.sku, revenue: s.revenue }))}
-            xKey="name"
-            bars={[{ key: 'revenue', label: 'Revenue', color: '#000' }]}
-            layout="vertical"
-            tickFormatter={v => `₹${(v / 1000).toFixed(0)}K`}
-            height={220}
-          />
-        </Card>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {/* Top 5 SKUs — compact ranked list */}
+          <Card>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <h2 style={{ fontSize: 15, fontWeight: 600, margin: 0 }}>Top 5 SKUs by Revenue</h2>
+              <Link href="/sku-health" style={{ fontSize: 12, color: '#737373', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}>
+                View all <ArrowRight size={12} />
+              </Link>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+              {top5.map((s, i) => {
+                const pct = overview.total_monthly_revenue > 0
+                  ? ((s.revenue / overview.total_monthly_revenue) * 100).toFixed(1)
+                  : 0
+                return (
+                  <div key={s.sku} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: i < 4 ? '1px solid #F5F5F5' : 'none' }}>
+                    <span style={{ width: 20, height: 20, borderRadius: '50%', background: i === 0 ? '#000' : '#F5F5F5', color: i === 0 ? '#FFF' : '#737373', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      {i + 1}
+                    </span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: '#000', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.sku}</div>
+                      <div style={{ fontSize: 11, color: '#737373', marginTop: 1 }}>{s.units?.toLocaleString()} units sold</div>
+                    </div>
+                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#000' }}>{formatCurrency(s.revenue)}</div>
+                      <div style={{ fontSize: 11, color: '#A3A3A3' }}>{pct}% of total</div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </Card>
+
+          {/* Revenue mix snapshot */}
+          <Card>
+            <h2 style={{ fontSize: 15, fontWeight: 600, margin: '0 0 12px' }}>Revenue Mix</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              {[
+                { label: 'B2C Revenue', value: formatCurrency(overview.total_b2c_revenue), sub: formatPct((overview.total_b2c_revenue / overview.total_monthly_revenue) * 100) + ' of total', color: '#000' },
+                { label: 'B2B Revenue', value: formatCurrency(overview.total_b2b_revenue), sub: formatPct((overview.total_b2b_revenue / overview.total_monthly_revenue) * 100) + ' of total', color: '#525252' },
+                { label: 'Promo-driven', value: formatCurrency(promotions?.summary?.promo_revenue), sub: formatPct(promotions?.summary?.promo_revenue_pct) + ' of orders revenue', color: promotions?.summary?.promo_revenue_pct > 50 ? '#D97706' : '#000' },
+                { label: 'Organic', value: formatCurrency(promotions?.summary?.organic_revenue), sub: formatPct(100 - (promotions?.summary?.promo_revenue_pct || 0)) + ' of orders revenue', color: '#16A34A' },
+              ].map(item => (
+                <div key={item.label} style={{ background: '#FAFAFA', borderRadius: 8, padding: '10px 12px' }}>
+                  <div style={{ fontSize: 11, color: '#737373', marginBottom: 4 }}>{item.label}</div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: item.color }}>{item.value}</div>
+                  <div style={{ fontSize: 11, color: '#A3A3A3', marginTop: 2 }}>{item.sub}</div>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
       </div>
 
       {/* Row 6: Quick Wins */}
@@ -179,7 +219,7 @@ export default function DashboardPage() {
             <Card style={{ cursor: 'pointer', borderLeft: '3px solid #D97706' }}>
               <div style={{ fontSize: 22, fontWeight: 700, color: '#D97706' }}>{formatCurrency(inventory?.summary?.estimated_dead_storage_cost_monthly || 0)}</div>
               <div style={{ fontSize: 12, color: '#737373', marginTop: 4 }}>Dead inventory cost/month</div>
-              <div style={{ fontSize: 11, color: '#A3A3A3', marginTop: 6 }}>View dead inventory →</div>
+              <div style={{ fontSize: 11, color: '#A3A3A3', marginTop: 6 }}>Est. @ ₹20/unit · View dead inventory →</div>
             </Card>
           </Link>
         </div>
