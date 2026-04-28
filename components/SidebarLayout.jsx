@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Activity, Package, Tag, MapPin, Building2, Star, Bell, Menu, X } from 'lucide-react'
+import { LayoutDashboard, Activity, Package, Tag, MapPin, Building2, Star, Bell, Menu, X, TrendingUp, PieChart, RotateCcw, Wallet, Warehouse } from 'lucide-react'
 import { useIsMobile } from '@/lib/hooks'
 
 const nav = [
@@ -14,6 +14,12 @@ const nav = [
   { href: '/b2b', label: 'B2B Opportunities', icon: Building2 },
   { href: '/listing-quality', label: 'Listing Quality', icon: Star },
   { href: '/alerts', label: 'Alerts', icon: Bell },
+  { group: 'March 2026' },
+  { href: '/profitability', label: 'Profitability', icon: TrendingUp },
+  { href: '/fee-breakdown', label: 'Fee Breakdown', icon: PieChart },
+  { href: '/refunds', label: 'Refund P&L', icon: RotateCcw },
+  { href: '/settlement', label: 'Settlement', icon: Wallet },
+  { href: '/warehouse-optimization', label: 'Warehouse Opt.', icon: Warehouse },
 ]
 
 function SidebarContent({ onNavClick }) {
@@ -25,7 +31,15 @@ function SidebarContent({ onNavClick }) {
         <div style={{ fontSize: 11, color: '#737373', marginTop: 2, fontWeight: 500 }}>Intelligence POC</div>
       </div>
       <nav style={{ flex: 1, padding: '12px', overflowY: 'auto' }}>
-        {nav.map(({ href, label, icon: Icon }) => {
+        {nav.map((item) => {
+          if (item.group) {
+            return (
+              <div key={item.group} style={{ padding: '10px 12px 4px', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#525252', marginTop: 4 }}>
+                {item.group}
+              </div>
+            )
+          }
+          const { href, label, icon: Icon } = item
           const active = pathname === href
           return (
             <Link
