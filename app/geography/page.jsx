@@ -14,7 +14,7 @@ export default function GeographyPage() {
 
   if (loading || !data) return <div style={{ padding: 40, color: '#737373' }}>Loading...</div>
 
-  const { by_state, by_city, by_sku } = data
+  const { by_state, by_city, by_sku, summary } = data
 
   // Top 15 states by AOV — only include states with ≥5 orders to avoid noise
   const aovData = [...by_state]
@@ -48,8 +48,8 @@ export default function GeographyPage() {
   return (
     <div>
       <h1 style={{ fontSize: 24, fontWeight: 700, margin: '0 0 8px' }}>Geographic Demand</h1>
-      <div style={{ background: '#F5F5F5', border: '1px solid #E5E5E5', borderRadius: 8, padding: '10px 14px', marginBottom: 20, fontSize: 13, color: '#737373' }}>
-        Based on merchant-fulfilled orders only. FBA order geography available after SP-API integration.
+      <div style={{ background: '#F5F5F5', border: '1px solid #E5E5E5', borderRadius: 8, padding: '10px 14px', marginBottom: 12, fontSize: 13, color: '#737373' }}>
+        Source: MTR B2C (Jan–Mar 2026) · Covers both FBA and MFN orders · <strong>{formatNumber(summary?.total_orders || totalOrders)}</strong> shipments across <strong>{summary?.total_states || by_state.length}</strong> states · {formatCurrency(summary?.total_revenue || 0)} revenue
       </div>
 
       <div style={{ background: '#FAFAFA', border: '1px solid #E5E5E5', borderRadius: 10, padding: '10px 16px', marginBottom: 20, fontSize: 13, color: '#000' }}>

@@ -1,4 +1,5 @@
 'use client'
+import DataRequired from '@/components/DataRequired'
 import { useState, useEffect } from 'react'
 import MetricCard from '@/components/MetricCard'
 import DataTable from '@/components/DataTable'
@@ -16,6 +17,8 @@ export default function RefundsPage() {
   }, [])
 
   if (loading || !data) return <div style={{ padding: 40, color: '#737373' }}>Loading...</div>
+
+  if (data?._unavailable) return <DataRequired moduleName="Refund P&L Impact" missingFiles={data.missing_files || []} />
 
   const { summary, skus } = data
   const top15Cost = skus.slice(0, 15)

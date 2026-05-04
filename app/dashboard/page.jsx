@@ -35,17 +35,18 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    const safe = url => fetch(url).then(r => r.ok ? r.json() : null).catch(() => null)
     Promise.all([
-      fetch('/api/engines/digest').then(r => r.json()),
-      fetch('/api/engines/sku-health').then(r => r.json()),
-      fetch('/api/engines/alerts').then(r => r.json()),
-      fetch('/api/engines/inventory').then(r => r.json()),
-      fetch('/api/engines/listing-quality').then(r => r.json()),
-      fetch('/api/engines/promotions').then(r => r.json()),
+      safe('/api/engines/digest'),
+      safe('/api/engines/sku-health'),
+      safe('/api/engines/alerts'),
+      safe('/api/engines/inventory'),
+      safe('/api/engines/listing-quality'),
+      safe('/api/engines/promotions'),
     ]).then(([d, s, a, inv, lq, p]) => {
       setDigest(d); setSkuHealth(s); setAlerts(a); setInventory(inv); setListingQuality(lq); setPromotions(p)
       setLoading(false)
-    }).catch(console.error)
+    })
   }, [])
 
   if (loading) return (
@@ -57,6 +58,7 @@ export default function DashboardPage() {
   const overview = digest?.overview || {}
   const trend = digest?.daily_revenue_trend || []
   const top5 = digest?.top5_by_revenue || []
+  const trendCoverage = digest?.trend_coverage || {}
 
   const investCount = skuHealth?.filter(s => s.classification === 'INVEST').length || 0
   const watchCount = skuHealth?.filter(s => s.classification === 'WATCH').length || 0
@@ -69,17 +71,17 @@ export default function DashboardPage() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
         <div>
           <h1 style={{ fontSize: 24, fontWeight: 700, color: '#000', margin: 0 }}>Seller Snapshot</h1>
-          <p style={{ fontSize: 13, color: '#737373', margin: '4px 0 0' }}>April 2026 · All figures from Business Report + Order Data</p>
+          <p style={{ fontSize: 13, color: '#737373', margin: '4px 0 0' }}>Jan–Apr 2026 · Business Report + MTR B2C</p>
         </div>
       </div>
 
       {/* Row 1: Business Overview */}
-      <PageSection title="Business Overview">
+      <PageSection title={`Business Overview · ${overview.period || 'Jan–Apr 2026'}`}>
         <div className="rg-6" style={{ marginBottom: 0 }}>
-          <MetricCard label="Monthly Revenue (Business Report)" value={formatCurrency(overview.total_monthly_revenue)} icon={TrendingUp} sub="FBA + MFN · full April 2026" />
-          <MetricCard label="B2C Revenue" value={formatCurrency(overview.total_b2c_revenue)} />
-          <MetricCard label="B2B Revenue" value={formatCurrency(overview.total_b2b_revenue)} />
-          <MetricCard label="MFN Orders (Mar31–Apr24)" value={formatNumber(overview.total_orders)} icon={ShoppingCart} sub="MFN only · FBA orders via SP-API" />
+          <MetricCard label="Total Revenue" value={formatCurrency(overview.total_revenue)} icon={TrendingUp} sub={overview.period} />
+          <MetricCard label="B2C Revenue" value={formatCurrency(overview.total_b2c_revenue)} sub={`${overview.total_revenue > 0 ? ((overview.total_b2c_revenue / overview.total_revenue) * 100).toFixed(1) : 0}% of total`} />
+          <MetricCard label="B2B Revenue" value={formatCurrency(overview.total_b2b_revenue)} sub={`${overview.total_revenue > 0 ? ((overview.total_b2b_revenue / overview.total_revenue) * 100).toFixed(1) : 0}% of total`} />
+          <MetricCard label="Units Ordered" value={formatNumber(overview.total_units)} icon={ShoppingCart} />
           <MetricCard label="Active SKUs" value={formatNumber(overview.total_skus_active)} icon={Package} />
           <MetricCard label="Avg Conversion" value={formatPct(overview.avg_conversion_rate)} icon={Users} />
         </div>
@@ -88,14 +90,25 @@ export default function DashboardPage() {
       {/* Row 2: Revenue Trend + B2C/B2B Split */}
       <div className="rg-21">
         <Card>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <h2 style={{ fontSize: 15, fontWeight: 600, margin: 0 }}>Daily Revenue Trend</h2>
-            <span style={{ fontSize: 11, color: '#A3A3A3' }}>Estimated from order data (MFN + FBA shipments)</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8, flexWrap: 'wrap', gap: 8 }}>
+            <div>
+              <h2 style={{ fontSize: 15, fontWeight: 600, margin: 0 }}>Daily Revenue Trend</h2>
+              <span style={{ fontSize: 11, color: '#A3A3A3' }}>
+                Source: MTR B2C · {trendCoverage.trend_period || 'No data'}
+              </span>
+            </div>
+            {trendCoverage.missing_months?.length > 0 && (
+              <Link href="/settings/data" style={{ textDecoration: 'none' }}>
+                <span style={{ fontSize: 11, background: '#FFFBEB', border: '1px solid #FDE68A', color: '#B45309', borderRadius: 6, padding: '4px 10px', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  ⚠ {trendCoverage.missing_months.join(', ')} missing · Upload to complete →
+                </span>
+              </Link>
+            )}
           </div>
           <AreaChart
             data={trend}
             xKey="date"
-            areas={[{ key: 'revenue', label: 'Total Revenue', color: '#000' }]}
+            areas={[{ key: 'revenue', label: 'Daily Revenue', color: '#000' }]}
             tickFormatter={v => `₹${(v / 1000).toFixed(0)}K`}
           />
         </Card>
@@ -148,8 +161,8 @@ export default function DashboardPage() {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
               {top5.map((s, i) => {
-                const pct = overview.total_monthly_revenue > 0
-                  ? ((s.revenue / overview.total_monthly_revenue) * 100).toFixed(1)
+                const pct = overview.total_revenue > 0
+                  ? ((s.revenue / overview.total_revenue) * 100).toFixed(1)
                   : 0
                 return (
                   <div key={s.sku} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: i < 4 ? '1px solid #F5F5F5' : 'none' }}>
@@ -175,8 +188,8 @@ export default function DashboardPage() {
             <h2 style={{ fontSize: 15, fontWeight: 600, margin: '0 0 12px' }}>Revenue Mix</h2>
             <div className="rg-2" style={{ gap: 10, marginBottom: 0 }}>
               {[
-                { label: 'B2C Revenue', value: formatCurrency(overview.total_b2c_revenue), sub: formatPct((overview.total_b2c_revenue / overview.total_monthly_revenue) * 100) + ' of total', color: '#000' },
-                { label: 'B2B Revenue', value: formatCurrency(overview.total_b2b_revenue), sub: formatPct((overview.total_b2b_revenue / overview.total_monthly_revenue) * 100) + ' of total', color: '#525252' },
+                { label: 'B2C Revenue', value: formatCurrency(overview.total_b2c_revenue), sub: formatPct((overview.total_b2c_revenue / overview.total_revenue) * 100) + ' of total', color: '#000' },
+                { label: 'B2B Revenue', value: formatCurrency(overview.total_b2b_revenue), sub: formatPct((overview.total_b2b_revenue / overview.total_revenue) * 100) + ' of total', color: '#525252' },
                 { label: 'Promo-driven', value: formatCurrency(promotions?.summary?.promo_revenue), sub: formatPct(promotions?.summary?.promo_revenue_pct) + ' of orders revenue', color: promotions?.summary?.promo_revenue_pct > 50 ? '#D97706' : '#000' },
                 { label: 'Organic', value: formatCurrency(promotions?.summary?.organic_revenue), sub: formatPct(100 - (promotions?.summary?.promo_revenue_pct || 0)) + ' of orders revenue', color: '#16A34A' },
               ].map(item => (

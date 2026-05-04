@@ -1,4 +1,5 @@
 'use client'
+import DataRequired from '@/components/DataRequired'
 import { useState, useEffect } from 'react'
 import MetricCard from '@/components/MetricCard'
 import DataTable from '@/components/DataTable'
@@ -19,6 +20,8 @@ export default function FeeBreakdownPage() {
   }, [])
 
   if (loading || !data) return <div style={{ padding: 40, color: '#737373' }}>Loading...</div>
+
+  if (data?._unavailable) return <DataRequired moduleName="Fee Breakdown" missingFiles={data.missing_files || []} />
 
   const { catalog_summary, skus } = data
 

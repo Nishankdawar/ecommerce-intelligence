@@ -20,6 +20,35 @@ export default function PromotionsPage() {
 
   if (loading || !data) return <div style={{ padding: 40, color: '#737373' }}>Loading...</div>
 
+  // Show unavailable message if Orders Report is missing
+  if (data._unavailable) {
+    return (
+      <div>
+        <h1 style={{ fontSize: 24, fontWeight: 700, margin: '0 0 24px' }}>Promotion Attribution</h1>
+        <div style={{ background: '#FFF', border: '1px solid #E5E5E5', borderRadius: 12, padding: 40, textAlign: 'center', maxWidth: 540, margin: '60px auto' }}>
+          <div style={{ fontSize: 40, marginBottom: 16 }}>📋</div>
+          <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 12px' }}>Orders Report Required</h2>
+          <p style={{ fontSize: 14, color: '#737373', lineHeight: 1.7, margin: '0 0 20px' }}>
+            The Promotions Attribution module needs the <strong>Orders Report</strong> to identify which promotion IDs drove which orders. This is the only report that contains the <code style={{ background: '#F5F5F5', padding: '1px 6px', borderRadius: 4 }}>promotion-ids</code> column.
+          </p>
+          <div style={{ background: '#F5F5F5', border: '1px solid #E5E5E5', borderRadius: 8, padding: '14px 16px', textAlign: 'left', marginBottom: 20 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#737373', marginBottom: 8 }}>How to download</div>
+            <ol style={{ margin: 0, paddingLeft: 18, fontSize: 13, color: '#525252', lineHeight: 2 }}>
+              <li>Go to Seller Central → Reports → Order Reports</li>
+              <li>Click <strong>"Request Report"</strong> tab</li>
+              <li>Select <strong>"All Orders"</strong></li>
+              <li>Set date range (e.g. Jan–Apr 2026)</li>
+              <li>Download and upload via Data Management</li>
+            </ol>
+          </div>
+          <a href="/settings/data" style={{ display: 'inline-block', padding: '10px 20px', background: '#000', color: '#FFF', borderRadius: 8, fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
+            Go to Data Management →
+          </a>
+        </div>
+      </div>
+    )
+  }
+
   const { summary, promotions, daily_trend, by_sku } = data
 
   // On mobile show every 4th date label to avoid overlap

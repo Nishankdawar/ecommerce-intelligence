@@ -1,4 +1,5 @@
 'use client'
+import DataRequired from '@/components/DataRequired'
 import { useState, useEffect } from 'react'
 import MetricCard from '@/components/MetricCard'
 import DataTable from '@/components/DataTable'
@@ -80,6 +81,8 @@ export default function WarehouseOptimizationPage() {
   }, [])
 
   if (loading || !data) return <div style={{ padding: 40, color: '#737373' }}>Loading...</div>
+
+  if (data?._unavailable) return <DataRequired moduleName="Warehouse Optimization" missingFiles={data.missing_files || []} />
 
   const { summary, skus, catalog_demand, catalog_supply } = data
   const withOpportunity = skus.filter(s => s.estimated_monthly_saving > 0)

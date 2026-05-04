@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Activity, Package, Tag, MapPin, Building2, Star, Bell, Menu, X, TrendingUp, PieChart, RotateCcw, Wallet, Warehouse } from 'lucide-react'
+import { LayoutDashboard, Activity, Package, Tag, MapPin, Building2, Star, Bell, Menu, X, TrendingUp, PieChart, RotateCcw, Wallet, Warehouse, Settings } from 'lucide-react'
 import { useIsMobile } from '@/lib/hooks'
 
 const nav = [
@@ -20,6 +20,8 @@ const nav = [
   { href: '/refunds', label: 'Refund P&L', icon: RotateCcw },
   { href: '/settlement', label: 'Settlement', icon: Wallet },
   { href: '/warehouse-optimization', label: 'Warehouse Opt.', icon: Warehouse },
+  { group: 'Settings' },
+  { href: '/settings/data', label: 'Data Management', icon: Settings },
 ]
 
 function SidebarContent({ onNavClick }) {

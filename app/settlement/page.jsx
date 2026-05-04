@@ -1,4 +1,5 @@
 'use client'
+import DataRequired from '@/components/DataRequired'
 import { useState, useEffect } from 'react'
 import MetricCard from '@/components/MetricCard'
 import DataTable from '@/components/DataTable'
@@ -68,6 +69,8 @@ export default function SettlementPage() {
   }, [])
 
   if (loading || !data) return <div style={{ padding: 40, color: '#737373' }}>Loading...</div>
+
+  if (data?._unavailable) return <DataRequired moduleName="Settlement Reconciliation" missingFiles={data.missing_files || []} />
 
   const { summary, cycles, orders } = data
   const filteredOrders = skuFilter

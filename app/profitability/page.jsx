@@ -1,4 +1,5 @@
 'use client'
+import DataRequired from '@/components/DataRequired'
 import { useState, useEffect } from 'react'
 import MetricCard from '@/components/MetricCard'
 import StatusBadge from '@/components/StatusBadge'
@@ -79,6 +80,8 @@ export default function ProfitabilityPage() {
   }, [])
 
   if (loading || !data) return <div style={{ padding: 40, color: '#737373' }}>Loading...</div>
+
+  if (data?._unavailable) return <DataRequired moduleName="SKU Profitability" missingFiles={data.missing_files || []} />
 
   const { summary, skus } = data
   const top15 = skus.slice(0, 15)

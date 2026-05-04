@@ -18,7 +18,7 @@ export default function InventoryPage() {
 
   if (loading || !data) return <div style={{ padding: 40, color: '#737373' }}>Loading...</div>
 
-  const { summary, skus, dead_inventory } = data
+  const { summary, skus, dead_inventory, ledger_coverage } = data
 
   const topDays = [...skus].filter(s => s.days_remaining !== null).sort((a, b) => a.days_remaining - b.days_remaining).slice(0, 20)
   const topDead = [...dead_inventory].sort((a, b) => b.units_stuck - a.units_stuck).slice(0, 10)
@@ -49,8 +49,24 @@ export default function InventoryPage() {
 
   return (
     <div>
-      <h1 style={{ fontSize: 24, fontWeight: 700, margin: '0 0 4px' }}>Inventory Intelligence</h1>
-      <p style={{ fontSize: 13, color: '#A3A3A3', margin: '0 0 4px' }}>Velocity based on 2-day window. Accuracy improves with more data.</p>
+      <h1 style={{ fontSize: 24, fontWeight: 700, margin: '0 0 8px' }}>Inventory Intelligence</h1>
+
+      {ledger_coverage && (
+        <div style={{
+          background: ledger_coverage.accuracy === 'high' ? '#F0FDF4' : ledger_coverage.accuracy === 'medium' ? '#FFFBEB' : '#FFF1F1',
+          border: `1px solid ${ledger_coverage.accuracy === 'high' ? '#BBF7D0' : ledger_coverage.accuracy === 'medium' ? '#FDE68A' : '#FECACA'}`,
+          borderRadius: 8, padding: '9px 14px', marginBottom: 16, fontSize: 12,
+          color: ledger_coverage.accuracy === 'high' ? '#15803D' : ledger_coverage.accuracy === 'medium' ? '#B45309' : '#B91C1C',
+        }}>
+          {ledger_coverage.accuracy === 'low' && '⚠ '}
+          {ledger_coverage.accuracy === 'medium' && '○ '}
+          {ledger_coverage.accuracy === 'high' && '✓ '}
+          Inventory Ledger covers <strong>{ledger_coverage.num_days} day{ledger_coverage.num_days > 1 ? 's' : ''}</strong> ({ledger_coverage.date_from} → {ledger_coverage.date_to}).
+          {ledger_coverage.accuracy === 'low' && ' Velocity and dead inventory data are unreliable. Upload 30 days of ledger for accurate results.'}
+          {ledger_coverage.accuracy === 'medium' && ' Moderate accuracy. 30 days recommended for reliable velocity and stockout predictions.'}
+          {ledger_coverage.accuracy === 'high' && ' Good data coverage. Velocity and stockout predictions are reliable.'}
+        </div>
+      )}
 
       <div className="rg-4">
         <MetricCard label="Critical Stockout" value={summary.critical_stockout} color="#DC2626" sub="< 7 days remaining" />
