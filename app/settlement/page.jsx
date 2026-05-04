@@ -1,5 +1,6 @@
 'use client'
 import DataRequired from '@/components/DataRequired'
+import MonthSelector from '@/components/MonthSelector'
 import { useState, useEffect } from 'react'
 import MetricCard from '@/components/MetricCard'
 import DataTable from '@/components/DataTable'
@@ -60,19 +61,29 @@ function OrderDrawer({ order, onClose }) {
 export default function SettlementPage() {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [selectedMonth, setSelectedMonth] = useState(null)
   const [tab, setTab] = useState('cycles')
   const [selectedOrder, setSelectedOrder] = useState(null)
   const [skuFilter, setSkuFilter] = useState('')
 
-  useEffect(() => {
-    fetch('/api/engines/settlement').then(r => r.json()).then(d => { setData(d); setLoading(false) })
-  }, [])
+  function loadData(month) {
+    setLoading(true)
+    const url = month ? `/api/engines/settlement?month=${month}` : '/api/engines/settlement'
+    fetch(url).then(r => r.json()).then(d => {
+      setData(d)
+      if (!month && d.coverage?.selected_month) setSelectedMonth(d.coverage.selected_month)
+      setLoading(false)
+    })
+  }
+
+  useEffect(() => { loadData(null) }, [])
+
+  function handleMonthChange(month) { setSelectedMonth(month); loadData(month) }
 
   if (loading || !data) return <div style={{ padding: 40, color: '#737373' }}>Loading...</div>
-
   if (data?._unavailable) return <DataRequired moduleName="Settlement Reconciliation" missingFiles={data.missing_files || []} />
 
-  const { summary, cycles, orders } = data
+  const { summary, cycles, orders, coverage } = data
   const filteredOrders = skuFilter
     ? orders.filter(o => o.sku.toLowerCase().includes(skuFilter.toLowerCase()))
     : orders
@@ -90,7 +101,9 @@ export default function SettlementPage() {
   return (
     <div>
       <h1 style={{ fontSize: 24, fontWeight: 700, margin: '0 0 4px' }}>Settlement Reconciliation</h1>
-      <p style={{ fontSize: 13, color: '#737373', margin: '0 0 20px' }}>March 2026 · 4 settlement cycles · See what Amazon actually paid and why</p>
+      <p style={{ fontSize: 13, color: '#737373', margin: '0 0 16px' }}>See what Amazon actually paid and why · gross revenue → deductions → bank deposit</p>
+
+      <MonthSelector coverage={coverage} selectedMonth={selectedMonth} onMonthChange={handleMonthChange} />
 
       {/* Row 1 — Revenue & Net */}
       <div className="rg-3" style={{ marginBottom: 8 }}>

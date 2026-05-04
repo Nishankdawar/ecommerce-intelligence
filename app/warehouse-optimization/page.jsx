@@ -1,5 +1,6 @@
 'use client'
 import DataRequired from '@/components/DataRequired'
+import MonthSelector from '@/components/MonthSelector'
 import { useState, useEffect } from 'react'
 import MetricCard from '@/components/MetricCard'
 import DataTable from '@/components/DataTable'
@@ -76,15 +77,26 @@ export default function WarehouseOptimizationPage() {
   const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState(null)
 
-  useEffect(() => {
-    fetch('/api/engines/warehouse-optimization').then(r => r.json()).then(d => { setData(d); setLoading(false) })
-  }, [])
+  const [selectedMonth, setSelectedMonth] = useState(null)
+
+  function loadData(month) {
+    setLoading(true)
+    const url = month ? `/api/engines/warehouse-optimization?month=${month}` : '/api/engines/warehouse-optimization'
+    fetch(url).then(r => r.json()).then(d => {
+      setData(d)
+      if (!month && d.coverage?.selected_month) setSelectedMonth(d.coverage.selected_month)
+      setLoading(false)
+    })
+  }
+
+  useEffect(() => { loadData(null) }, [])
+  function handleMonthChange(month) { setSelectedMonth(month); loadData(month) }
 
   if (loading || !data) return <div style={{ padding: 40, color: '#737373' }}>Loading...</div>
 
   if (data?._unavailable) return <DataRequired moduleName="Warehouse Optimization" missingFiles={data.missing_files || []} />
 
-  const { summary, skus, catalog_demand, catalog_supply } = data
+  const { summary, skus, catalog_demand, catalog_supply, coverage } = data
   const withOpportunity = skus.filter(s => s.estimated_monthly_saving > 0)
 
   const columns = [
@@ -103,6 +115,10 @@ export default function WarehouseOptimizationPage() {
   return (
     <div>
       <h1 style={{ fontSize: 24, fontWeight: 700, margin: '0 0 4px' }}>Warehouse Optimization</h1>
+      <p style={{ fontSize: 13, color: '#737373', margin: '0 0 16px' }}>Reduce cross-state shipping costs by redistributing stock closer to demand</p>
+
+      <MonthSelector coverage={coverage} selectedMonth={selectedMonth} onMonthChange={handleMonthChange} />
+
       <p style={{ fontSize: 13, color: '#737373', margin: '0 0 8px' }}>March 2026 · Identify where demand is coming from vs where stock is sitting · reduce cross-state shipping costs</p>
       <div style={{ background: '#F5F5F5', border: '1px solid #E5E5E5', borderRadius: 8, padding: '8px 14px', marginBottom: 20, fontSize: 12, color: '#737373' }}>
         Cross-state orders (IGST) typically incur higher FBA weight handling fees than intra-state (CGST+SGST). Sending stock closer to demand clusters reduces per-order fulfillment cost.

@@ -1,5 +1,6 @@
 'use client'
 import DataRequired from '@/components/DataRequired'
+import MonthSelector from '@/components/MonthSelector'
 import { useState, useEffect } from 'react'
 import MetricCard from '@/components/MetricCard'
 import StatusBadge from '@/components/StatusBadge'
@@ -74,16 +75,25 @@ export default function ProfitabilityPage() {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState(null)
+  const [selectedMonth, setSelectedMonth] = useState(null)
 
-  useEffect(() => {
-    fetch('/api/engines/profitability').then(r => r.json()).then(d => { setData(d); setLoading(false) })
-  }, [])
+  function loadData(month) {
+    setLoading(true)
+    const url = month ? `/api/engines/profitability?month=${month}` : '/api/engines/profitability'
+    fetch(url).then(r => r.json()).then(d => {
+      setData(d)
+      if (!month && d.coverage?.selected_month) setSelectedMonth(d.coverage.selected_month)
+      setLoading(false)
+    })
+  }
+
+  useEffect(() => { loadData(null) }, [])
+  function handleMonthChange(month) { setSelectedMonth(month); loadData(month) }
 
   if (loading || !data) return <div style={{ padding: 40, color: '#737373' }}>Loading...</div>
-
   if (data?._unavailable) return <DataRequired moduleName="SKU Profitability" missingFiles={data.missing_files || []} />
 
-  const { summary, skus } = data
+  const { summary, skus, coverage } = data
   const top15 = skus.slice(0, 15)
   const bottom10 = [...skus].filter(s => s.margin_pct > 0).sort((a, b) => a.margin_pct - b.margin_pct).slice(0, 10)
 
@@ -102,6 +112,9 @@ export default function ProfitabilityPage() {
   return (
     <div>
       <h1 style={{ fontSize: 24, fontWeight: 700, margin: '0 0 4px' }}>SKU Profitability</h1>
+
+      <MonthSelector coverage={coverage} selectedMonth={selectedMonth} onMonthChange={handleMonthChange} />
+
       <p style={{ fontSize: 13, color: '#737373', margin: '0 0 20px' }}>March 2026 · Net proceeds after all Amazon fees, TDS, TCS · Click any SKU for full breakdown</p>
 
       <div className="rg-4" style={{ marginBottom: 20 }}>

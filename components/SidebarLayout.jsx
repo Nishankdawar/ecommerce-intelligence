@@ -14,7 +14,7 @@ const nav = [
   { href: '/b2b', label: 'B2B Opportunities', icon: Building2 },
   { href: '/listing-quality', label: 'Listing Quality', icon: Star },
   { href: '/alerts', label: 'Alerts', icon: Bell },
-  { group: 'March 2026' },
+  { group: 'Financials' },
   { href: '/profitability', label: 'Profitability', icon: TrendingUp },
   { href: '/fee-breakdown', label: 'Fee Breakdown', icon: PieChart },
   { href: '/refunds', label: 'Refund P&L', icon: RotateCcw },
@@ -63,7 +63,7 @@ function SidebarContent({ onNavClick }) {
         })}
       </nav>
       <div style={{ padding: '16px 20px', borderTop: '1px solid rgba(255,255,255,0.08)', fontSize: 11, color: '#525252' }}>
-        April 2026 · POC
+        Jan–Apr 2026 · POC
       </div>
     </div>
   )

@@ -1,5 +1,6 @@
 'use client'
 import DataRequired from '@/components/DataRequired'
+import MonthSelector from '@/components/MonthSelector'
 import { useState, useEffect } from 'react'
 import MetricCard from '@/components/MetricCard'
 import DataTable from '@/components/DataTable'
@@ -15,15 +16,26 @@ export default function FeeBreakdownPage() {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    fetch('/api/engines/fee-breakdown').then(r => r.json()).then(d => { setData(d); setLoading(false) })
-  }, [])
+  const [selectedMonth, setSelectedMonth] = useState(null)
+
+  function loadData(month) {
+    setLoading(true)
+    const url = month ? `/api/engines/fee-breakdown?month=${month}` : '/api/engines/fee-breakdown'
+    fetch(url).then(r => r.json()).then(d => {
+      setData(d)
+      if (!month && d.coverage?.selected_month) setSelectedMonth(d.coverage.selected_month)
+      setLoading(false)
+    })
+  }
+
+  useEffect(() => { loadData(null) }, [])
+  function handleMonthChange(month) { setSelectedMonth(month); loadData(month) }
 
   if (loading || !data) return <div style={{ padding: 40, color: '#737373' }}>Loading...</div>
 
   if (data?._unavailable) return <DataRequired moduleName="Fee Breakdown" missingFiles={data.missing_files || []} />
 
-  const { catalog_summary, skus } = data
+  const { catalog_summary, skus, coverage } = data
 
   const columns = [
     { key: 'sku', label: 'SKU', sortable: true },
@@ -39,6 +51,10 @@ export default function FeeBreakdownPage() {
   return (
     <div>
       <h1 style={{ fontSize: 24, fontWeight: 700, margin: '0 0 4px' }}>Fee Breakdown</h1>
+      <p style={{ fontSize: 13, color: '#737373', margin: '0 0 16px' }}>Where Amazon takes its cut</p>
+
+      <MonthSelector coverage={coverage} selectedMonth={selectedMonth} onMonthChange={handleMonthChange} />
+
       <p style={{ fontSize: 13, color: '#737373', margin: '0 0 20px' }}>March 2026 · Where Amazon takes its cut</p>
 
       <div className="rg-4">

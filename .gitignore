@@ -36,3 +36,7 @@ yarn-error.log*
 next-env.d.ts
 .env.local
 .env
+
+# Raw payment TXT files — 247 files, too large for git
+# Use data/processed/settlement_*.json instead (pre-generated)
+data/new_data/amazon_payments/
