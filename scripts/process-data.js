@@ -54,18 +54,23 @@ async function processAll() {
   console.log(`\nDone. ${total} result JSONs written to data/processed/`)
   if (errors > 0) console.log(`⚠ ${errors} errors — check the output above`)
 
-  // Show file sizes
-  const { readdirSync, statSync } = await import('fs')
+  // Clean up large raw row intermediate files (settlement_YYYY-MM.json)
+  const { readdirSync, statSync, unlinkSync } = await import('fs')
   const { join } = await import('path')
-  const files = readdirSync('data/processed').filter(f => f.endsWith('.json'))
+  const rawRowFiles = readdirSync('data/processed').filter(f => /^settlement_\d{4}-\d{2}\.json$/.test(f))
+  rawRowFiles.forEach(f => { unlinkSync(join('data/processed', f)); })
+  if (rawRowFiles.length > 0) console.log(`\nCleaned up ${rawRowFiles.length} large intermediate files`)
+
+  // Show result files only (exclude raw row cache)
+  const files = readdirSync('data/processed').filter(f => f.endsWith('.json') && f.includes('_result_'))
   let totalSize = 0
-  console.log('\nGenerated files:')
+  console.log('\nGenerated result files (commit these to GitHub):')
   files.sort().forEach(f => {
     const size = statSync(join('data/processed', f)).size
     totalSize += size
     console.log(`  ${f.padEnd(45)} ${(size/1024).toFixed(0)}KB`)
   })
-  console.log(`\nTotal: ${(totalSize/1024/1024).toFixed(1)}MB — safe to commit to GitHub`)
+  console.log(`\nTotal to commit: ${(totalSize/1024/1024).toFixed(1)}MB across ${files.length} files`)
 }
 
 processAll().catch(console.error)
