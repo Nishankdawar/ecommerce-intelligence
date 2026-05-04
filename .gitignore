@@ -38,5 +38,8 @@ next-env.d.ts
 .env
 
 # Raw payment TXT files — 247 files, too large for git
-# Use data/processed/settlement_*.json instead (pre-generated)
+# Run: npm run process-data to regenerate result JSONs locally
 data/new_data/amazon_payments/
+
+# Raw settlement row cache — large intermediate files, not needed for deployment
+data/processed/settlement_2026-*.json
